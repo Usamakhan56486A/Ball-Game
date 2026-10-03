@@ -1,0 +1,153 @@
+/* Full-screen WebGL shell for Ball Game.
+   The stock template pins #unity-fullscreen-container to a fixed pixel box and
+   centres it, so the game sat in a small window inside the page. Here the page
+   and every container are viewport-sized, with the footer kept as an overlay so
+   it never steals height from the canvas. */
+
+html, body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #10121a;
+  /* Stop the page rubber-banding or text-selecting during a drag. */
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#unity-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#unity-fullscreen-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#unity-canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #231F20;
+  outline: none;
+}
+
+#unity-loading-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background: linear-gradient(160deg, #1b2140 0%, #2d1b3d 55%, #46203a 100%);
+}
+
+#unity-loading-bar {
+  /* Absolute + translate, not flexbox: the Unity loader sets this container's
+     display to "block", which makes align-items/justify-content inert and left
+     the bar in the top-left corner. */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  max-width: 460px;
+  min-width: 240px;
+  text-align: center;
+}
+
+#unity-title {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #ff5a4d;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  margin-bottom: 26px;
+  text-transform: uppercase;
+}
+
+#unity-progress-bar-empty {
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+#unity-progress-bar-full {
+  width: 0%;
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #ff5a4d 0%, #ffc247 100%);
+  transition: width 0.2s ease-out;
+}
+
+#unity-progress-note {
+  margin-top: 14px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Overlay footer: absolute so it does not shrink the canvas, and dimmed so it
+   stays out of the way until hovered. */
+#unity-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  opacity: 0.25;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+#unity-footer:hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#unity-build-title {
+  float: right;
+  margin: 0 10px 0 0;
+  line-height: 38px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+#unity-fullscreen-button {
+  cursor: pointer;
+  float: right;
+  width: 38px;
+  height: 38px;
+  background: url('fullscreen-button.png') no-repeat center;
+  filter: invert(1);
+}
+
+#unity-warning {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%, 0);
+  background: white;
+  padding: 10px;
+  display: none;
+  z-index: 20;
+}
