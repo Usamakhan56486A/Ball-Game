@@ -1,0 +1,208 @@
+/* Full-screen WebGL shell for Ball Game.
+   The stock template pins #unity-fullscreen-container to a fixed pixel box and
+   centres it, so the game sat in a small window inside the page. Here the page
+   and every container are viewport-sized, with the footer kept as an overlay so
+   it never steals height from the canvas. */
+
+html, body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #10121a;
+  /* Stop the page rubber-banding or text-selecting during a drag. */
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Hand every gesture to the canvas. Without this Android scrolls the page,
+     pull-to-refreshes it and pinch-zooms it, and the thumbstick reads those as
+     the page moving rather than the ball turning. touch-action has to be on
+     html/body as well as the canvas: the gesture starts wherever the finger
+     lands, and that is usually not on the canvas element itself. */
+  touch-action: none;
+}
+
+#unity-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#unity-fullscreen-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#unity-canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #231F20;
+  outline: none;
+}
+
+#unity-loading-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Kept as "none" here; the Unity loader sets display to "block" via script.
+     The bar centres itself absolutely, so no flex properties are needed. */
+  display: none;
+  background: linear-gradient(160deg, #1b2140 0%, #2d1b3d 55%, #46203a 100%);
+}
+
+#unity-loading-bar {
+  /* Centred with absolute positioning rather than flexbox on the parent.
+     The Unity loader flips this container's display to "block" from script, and
+     align-items/justify-content are flex-only - with display:block they are inert
+     and the bar drops into the top-left corner. Absolute + translate does not
+     care what the parent's display happens to be. */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  max-width: 460px;
+  min-width: 240px;
+  text-align: center;
+}
+
+#unity-title {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #ff5a4d;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  margin-bottom: 26px;
+  text-transform: uppercase;
+}
+
+#unity-progress-bar-empty {
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+}
+
+#unity-progress-bar-full {
+  width: 0%;
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #ff5a4d 0%, #ffc247 100%);
+  transition: width 0.2s ease-out;
+}
+
+#unity-progress-note {
+  margin-top: 14px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Overlay footer: absolute so it does not shrink the canvas, and dimmed so it
+   stays out of the way until hovered. */
+#unity-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  opacity: 0.25;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+#unity-footer:hover {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#unity-build-title {
+  float: right;
+  margin: 0 10px 0 0;
+  line-height: 38px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+#unity-fullscreen-button {
+  cursor: pointer;
+  float: right;
+  width: 38px;
+  height: 38px;
+  background: url('fullscreen-button.png') no-repeat center;
+  filter: invert(1);
+}
+
+#unity-warning {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%, 0);
+  background: white;
+  padding: 10px;
+  display: none;
+  z-index: 20;
+}
+
+/* ---------------------------------------------------------------- ad slots
+   Both start hidden and are only revealed by BallAds.jslib once a unit is
+   actually configured, so an unconfigured build shows nothing at all. They
+   overlay the canvas instead of resizing it - reflowing the canvas when a unit
+   finishes loading would move the game under the player's finger. */
+
+.ad-slot {
+  display: none;
+  position: absolute;
+  z-index: 15;
+  pointer-events: none;
+  background: rgba(12, 14, 22, 0.92);
+}
+
+#bg-ad-bottom {
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+
+#bg-ad-top {
+  right: 0;
+  top: 0;
+  padding: 4px;
+}
+
+/* Ads have to be clickable, so the overlay containers re-enable hit testing
+   for their children while the empty slot stays transparent to the mouse. */
+#bg-ad-bottom .adsbygoogle,
+#bg-ad-top .adsbygoogle {
+  pointer-events: auto;
+}
+
+/* Rewarded video layer: a full-page overlay above everything except nothing. */
+#bg-ad-video {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.9);
+}
